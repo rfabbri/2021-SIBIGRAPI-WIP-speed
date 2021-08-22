@@ -285,8 +285,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Example of IEEEtran.cls, adapted for Sibgrapi 2021}
-
+\title{Optimizing numerical continuation for highly nonlinear multiview problems}
 
 % author names and affiliations
 % use a multiple column layout for up to two different
@@ -348,7 +347,27 @@ Fax: (888) 555--1212}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-The abstract goes here.
+Many problems in science and engineering involve solving square systems of
+algebraic equations or multivariate polynomials, where the number of unknowns is
+the same as the number of constraining equations, and for which there is a
+zero-dimesional (i.e., finite) set of solutions. For large degrees of
+nonlinearity, as expressed by algebraic degrees in the order of a few hundreds,
+these problems have recently been solved efficiently and stably for the first
+time by a fast numerical continuation framework called MiNUS
+(Minimal Problem Numerical Continuation Solver). One such highly nonlinear
+problem is the 3D reconstruction of relative camera pose
+(rotation and translation) given only point correspondences across three 
+images -- it has degree 320 and can be reliably solved by the generic framework
+in the order of hundreds of miliseconds to 1s. If this and similar problems can
+be solved in the order of microseconds, the field of structure from motion and
+multiview 3D reconstruction would arguably be revolutionized by the use of such
+a generic, globally convergent and stable algorithm, potentially making its way to
+the hardware of cellphones and autonomous cars. This work reviews
+and discusses computer science techniques for source-code optimization of
+numerical continuation code, with emphasis on memory layout, cache analysis,
+straight line program vectorization and surveying the most promising
+possibilities for further optimization. The techniques are useful for similar
+algorithms such as simulationg nonrigid deformation and dynamical systems.
 \end{abstract}
 
 % no keywords

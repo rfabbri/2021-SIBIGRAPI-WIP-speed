@@ -1,6 +1,9 @@
 \section{SPEED}
 
-Array elements:
+\subsection{Memory}
+We first analyze the memory layout of the arrays used for calculation. Each
+array element is of complex type double precision, occupying 16 bytes on a
+64-bit GNU/Linux system.
 \tiny\begin{verbatim}
     // C == std::complex
 
@@ -50,6 +53,11 @@ Array elements:
 \end{verbatim}
 \normalsize
 
+By using a ``release with debug info'' build compiled under
+\verb|GCC 7.5.0 x86_64-linux-gnu|, we can check the starting addresses of
+each array with a debugger. By doing so, we find that there's a gap between,
+\verb|x0t0xtblock| and \verb|Hxt| of 3264 bytes (204 elements).
+
 Memory layout gap:
 \footnotesize\begin{verbatim}
 
@@ -74,11 +82,23 @@ Memory layout gap:
 \end{verbatim}
 \normalsize
 
-Valgrind:
+\subsection{Valgrind}
+
+Valgrind is a instrumentation framework and library of dynamic analysis tools.
+By using Valgrind's capabilities, we can get further insight into the behavior
+of the program during runtime.
+
+We used Memcheck to first check for any possible memory leaks, but none were
+found.
+
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/valgrind_memcheck}
     \caption{Valgrind Memcheck results}
 \end{figure}
+
+Next, we used Cachegrind to check for cache access, cache misses and branch
+mispredictions, of which both were under 4\%.
+
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/valgrind_cachegrind}
     \caption{Valgrind Cachegrind}
@@ -87,20 +107,39 @@ Valgrind:
     \includegraphics[width=\columnwidth]{figs/valgrind_cachegrind_results}
     \caption{Valgrind Cachegrind results}
 \end{figure}
+
+The tool Gg\_annotate allows for deeper understanding of the cache access
+patterns which can be used to optimize memory access within functions.
+
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/valgrind_cg_annotate0}
-    \caption{Valgrind Cg\_annotate (Callgrind\_annotate) 0}
+    \caption{Valgrind Cg\_annotate (Cachegrind\_annotate) 0}
 \end{figure}
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/valgrind_cg_annotate1}
-    \caption{Valgrind Cg\_annotate (Callgrind\_annotate) 1}
+    \caption{Valgrind Cg\_annotate (Cachegrind\_annotate) 1}
 \end{figure}
+
+Using Callgrind in conjunction with the graphical tool QCachegrind, we can
+see the function callers and callees, and what percentage of the total runtime
+each one took. From this analysis, we can find that the most used function is
+the GCC's library built-in complex multiplication routine, followed by the Eigen
+library internal functions.
+
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/valgrind_qcachegrind_callgrind}
     \caption{Valgrind QCachegrind with Callgrind's output}
 \end{figure}
 
-Array element pattern loop:
+
+\subsection{Graphical Analysis}
+
+By tapping into the value of an element of each array we can try to detect
+patterns which can be used to speedup certain calculations. For each iteration
+of the main loop, we get a new value which is saved onto a text file. The lines
+of this text file were loaded as an array of points in the online graphing tool
+Desmos for graphical analysis.
+
 Hxt[0]:
 \begin{figure}[H]
     \includegraphics[width=\columnwidth]{figs/Hxt[0]_0}
@@ -186,6 +225,18 @@ dxi[0]:
     \includegraphics[width=\columnwidth]{figs/dxi[0]_6}
     \caption{dxi[0] 6}
 \end{figure}
+
+
+\subsection{Benchmarking Changes}
+By allocating a single memory block and manually assigning pointers to specific
+positions, we can eliminate the memory gap created by the compiler. Furthermore,
+by using the special keyword \verb|__restrict__|, it's possible for the compiler
+to optimize the code more thoroughly, as we promise it we won't cause any
+pointer aliasing.
+
+We benchmarked the program before and after the changes, and noticed a small
+speedup. This may be due to fewer cache misses, as the most frequently accessed
+memory segment is smaller in size.
 
 Benchmark results:
 

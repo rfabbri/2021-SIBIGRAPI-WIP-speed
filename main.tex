@@ -123,6 +123,7 @@
 % version and documentation can be obtained at:
 % http://www.ctan.org/pkg/amsmath
 \usepackage{amsthm}
+\usepackage{amsfonts}
 \newtheorem{definition}{Definition}
 
 
@@ -279,6 +280,9 @@
 
 \usepackage{float}
 \usepackage[ruled,vlined]{algorithm2e}
+
+\newcommand{\srot}{\mathtt{R}} % rotation in simplified notation
+\newcommand{\stransl}{\mathbf{t}}  % translation vector in simplified notation
 
 \begin{document}
 %
@@ -472,7 +476,13 @@ $\mathcal{A}_0$ have already been computed via some offline, \emph{ab initio}
 phase. For our problems of interest, the number of start solutions is precisely
 the algebraic degree of the problem. 
 
-For the trifocal problem, $\mathcal R$ is ..
+For the 3-point trifocal relative pose problem, $\mathcal R$ is $\mathcal{R} = (\srot_2, \srot_3,
+\stransl_2, \stransl_3)$, which encode the rotation and translations of the second
+and third views with respect to the first camera. The implementation used in our
+experiments employ 14 variabes and 14 equations, so that $\mathcal{R} \in \mathbb{C}^{14}$.
+The parameters $\mathcal{A}$ encode the configuration of three feature point
+correspondences in three views; orientation used from two of the three feature
+points yield a minimal problem.
 
 \begin{algorithm}[h]
   \small
@@ -482,8 +492,8 @@ For the trifocal problem, $\mathcal R$ is ..
 	\DontPrintSemicolon
 	
 	\Input{Polynomial system $F(\mathcal{R};\mathcal{A})$, where 
-    $\mathcal{R}$ are the variables
-	parametrized by a set of paramters $\mathcal{A}$ describing the data; Start parameters $\mathcal{A}_0$; 
+    $\mathcal{R}$ are the variables;
+	a set of paramters $\mathcal{A}$ describing the data; Start parameters $\mathcal{A}_0$; 
 	start solutions $\mathcal{R}_0$ where $F(\mathcal{R}_0;\mathcal{A}_0)=0$; Target parameters $\mathcal{A}^*$}
   \Output{Set of target solutions $\mathcal{R}^*$ where $F(\mathcal{R}^*;\mathcal{A}^*)=0$}
 	%\hrulefill\\
@@ -505,8 +515,6 @@ For the trifocal problem, $\mathcal R$ is ..
 	\caption{Homotopy continuation solution tracker}
 	\label{alg}
 \end{algorithm}
-
-
 
 
 

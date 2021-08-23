@@ -525,6 +525,22 @@ The actual MiNuS solver framework implements Algorithm~\ref{alg:homotopy} in abo
 efficient templated C++ code. In order to better understand the memory layout, we describe
 the variables in greater detail, mapping to the names in the C++ code.
 
+By taking the total derivative of $H(x,t) = 0$, one can write the predictor step
+as
+\begin{align}
+  H_x \frac{dx}{dt} &= -H_t,
+\end{align}
+which is a linear system in 14 variables $\frac{dx}{dt}$. 
+From this, an initial prediction of $x_0$ is generated.
+This is brought closer to zero by the corrector step, which seeks $\Delta x$ such
+that a linear approximation to $H$ at $x_0$ is zero at $x_1 = x_0 + \Delta x$.
+This involves solving the following linear system
+\begin{align}
+  H_x \Delta x = H.
+\end{align}
+MiNuS presently solves these $14\times14$ complex linear systems using Eigen's LU
+decomposition, and the corrector step is performed at most $4$ times per solve.
+
 % TODO: colocar aqui pseudocodigo do paper do david
 
 % Includes section into document

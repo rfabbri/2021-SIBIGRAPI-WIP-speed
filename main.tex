@@ -353,28 +353,26 @@ Many problems in science and engineering involve solving square systems of
 algebraic equations or multivariate polynomials, where the number of unknowns is
 the same as the number of constraining equations, and for which there is a
 zero-dimesional (i.e., finite) set of solutions. For large degrees of
-nonlinearity, as expressed by algebraic degrees in the order of a few hundreds,
+nonlinearity, expressed by algebraic degrees in the order of a few hundreds,
 these problems have recently been solved efficiently and stably for the first
 time by a fast numerical continuation framework called MiNUS
 (Minimal Problem Numerical Continuation Solver). One such highly nonlinear
 problem is the 3D reconstruction of relative camera pose
 (rotation and translation) given only point correspondences across three
 images -- it has degree 320 and can be reliably solved by the generic framework
-in the order of hundreds of miliseconds to 1s. If this and similar problems can
-be solved in the order of microseconds, the field of structure from motion and
+in the order of hundreds of miliseconds to 1s. If this and similar problems
+could be optimized to run in the order of microseconds, the field of structure from motion and
 multiview 3D reconstruction would arguably be revolutionized by the use of such
 a generic, globally convergent and stable algorithm, potentially making its way to
 the hardware of cellphones and autonomous cars. This work reviews
 and discusses computer science techniques for source-code optimization of
-numerical continuation code, with emphasis on memory layout, cache analysis,
-straight line program vectorization and surveying the most promising
+numerical continuation code in multicore CPUs, with emphasis on memory layout, cache analysis,
+straight line program vectorization, surveying the most promising
 possibilities for further optimization. The techniques are useful for similar
 algorithms such as simulating nonrigid deformation and dynamical systems.
 \end{abstract}
 
 % no keywords
-
-
 
 
 % For peerreview papers, this IEEEtran command inserts a page break and
@@ -384,13 +382,69 @@ algorithms such as simulating nonrigid deformation and dynamical systems.
 
 
 \section{Introduction}
-SIBGRAPI 2021 \cite{Sibgrapi2021}.
 
-\subsection{Subsection Heading Here}
-Subsection text here.
 
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
+
+Many problems in science and engineering involve solving square systems of
+algebraic equations or multivariate polynomials, where the number of unknowns is
+the same as the number of constraining equations, and for which there is a
+zero-dimesional (i.e., finite) set of solutions. These exactly constrained 
+problems also known as minimal problems in 3D computer vision. Minimal problems
+can exactly reconstruct geometric models from minimal correspondence data, which is crucial
+for bootstrapping camera or robot localization from extremely high-outlier
+measurements. In this paper, we study fine-grained code-level optimizations to a
+generic numerical solver
+approach that scales to highly nonlinear minimal problems. One such problem is the 3D
+reconstruction of feature points and camera pose from three images, using the
+minimal data of three SIFT feature correspondences~\cite{Fabbri:etal:CVPR2020}.
+
+Gr\"obner basis solvers are standard for tackling minimal problems of low to
+moderate degrees of nonlinearity~\cite{grobner}. They are implemented in most
+cell phones and autonomous cars, solving problems in augmented reality and
+self-localization in the order of tens of microseconds in conventional CPUs.
+%
+% TODO: be more specific
+%For instance, they
+%can solve the 5 point problem, a problem with 5 degrees of nonlinearity, in
+%about 40 microseconds in standard CPUs.
+%
+These techniques, however, have not been able to scale towards larger 
+problems, since more degrees of freedom usually imply high nonlinearity beyond
+the cabapility of these solvers. Problems of algebraic degree 60 and
+beyond~\cite{} are either completely intractable by these techniques, or can
+only be solved in an unstable fashion. One reason is that they have to
+symbolically eliminate multiple variables down to a single variable.
+
+Recently,fast numerical continuation have superseded Gr\"obner bases for highly
+nonlinear minimal problems. Continuation solvers rely on generic
+linear system solvers and polynomial evaluation, rather than symbolic elimination and eigenvalue
+problems. A solver framework called MiNUS (Minimal Problem Numerical
+Continuation Solver) has recently been able to solve previously untractable
+highly nonlinear problems, involving high degrees of nonlinearity (algebraic degrees)
+in the order of a few hundreds~\cite{}.  The solution is stable, as the
+numerical technique allows eliminating variables only to a certain, convenient
+point, after which all equations are treated simultaneously and symmetrically.
+Moreover, the continuation solver has 100 lines of generic C++ code that works
+for any minimal problem. Optimizing this code would positively impact a large
+array of problems~\cite{Tim}, possibly even competing with Grobner basis on
+highly important problems of moderate degrees.
+
+One such highly nonlinear problem is the 3D reconstruction of relative camera
+pose (rotation and translation) given only three (oriented) feature point
+correspondences across three images -- it has degree 320 and was first be
+reliably solved by the generic framework in the order of hundreds of miliseconds
+to 1s, Figure~\ref{fig:trifocal}. If this and similar problems could be
+optimized to run in the order of microseconds, the field of structure from
+motion and multiview 3D reconstruction would arguably be revolutionized by the
+use of such a generic, globally convergent and stable algorithm, potentially
+making its way to the hardware of cellphones and autonomous cars, extending what
+current Gr\"obner basis solver technology is capable of in augmented reality and
+navigation.
+
+This work reviews and discusses computer science techniques for source-code
+optimization of numerical continuation code in multicore CPUs, with emphasis on
+memory layout, cache analysis, straight line program vectorization, surveying
+the most promising possibilities for further optimization. 
 
 % Includes section into document
 \input{sections/speed}
@@ -493,7 +547,9 @@ Subsubsection text here.
 
 
 \section{Conclusion}
-The conclusion goes here.
+The techniques are
+useful for similar algorithms such as simulating nonrigid deformation and
+dynamical systems.
 
 
 

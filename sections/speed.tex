@@ -1,6 +1,15 @@
 \section{Speed Optimization Experiments}
 
 \subsection{Memory}
+The main blocks of memory in the C++ code is fixed in compile-time and is and
+parametrized by the size of the system, 14x14 in the case of the Chicago
+trifocal problem:
+\begin{verbatim}
+complex Hxt[(14+1)*14];         // 210
+complex x0t0xtblock[2*(14+1)];  // 30
+complex dxdt[15];           
+complex dxi[14];
+\end{verbatim}
 We first analyze the memory layout of the arrays used for calculation. Each
 array element is of complex type double precision, occupying 16 bytes on a
 64-bit GNU/Linux system.

@@ -361,7 +361,7 @@ time by a fast numerical continuation framework called MiNUS
 (Minimal Problem Numerical Continuation Solver). One such highly nonlinear
 problem is the 3D reconstruction of relative camera pose
 (rotation and translation) given only point correspondences across three
-images -- it has degree 320 and can be reliably solved by the generic framework
+images -- it has degree 312 and can be reliably solved by the generic framework
 in the order of hundreds of miliseconds to 1s. If this and similar problems
 could be optimized to run in the order of microseconds, the field of structure from motion and
 multiview 3D reconstruction would arguably be revolutionized by the use of such
@@ -434,7 +434,7 @@ highly important problems of moderate degrees.
 
 One such highly nonlinear problem is the 3D reconstruction of relative camera
 pose (rotation and translation) given only three (oriented) feature point
-correspondences across three images -- it has degree 320 and was first be
+correspondences across three images. Referred to as the Chicago problem, it has degree 312 and was first be
 reliably solved by the generic framework in the order of hundreds of miliseconds
 to 1s, Figure~\ref{fig:trifocal}. If this and similar problems could be
 optimized to run in the order of microseconds, the field of structure from
@@ -466,23 +466,16 @@ practice.
 We focus on the MiNuS framework, which is the state of the art continuation
 framework for minimal problem solvers. We may define a specific system of
 polynomials $F(\mathcal{R};\mathcal{A})$, where $\mathcal R$ is the set of
-unknowns which are parametrized by a set of parameters $\mathcal A$.
-MiNuS employs a fundamental technique for solving such systems, fully described
-in~\cite{SWbook}, called \emph{coefficient-parameter homotopy.}
+unknowns, and the coefficients of the equations are parametrized by a set of
+data parameters $\mathcal A$.
+MiNuS employs a fundamental technique for solving such systems called
+\emph{coefficient-parameter homotopy}~\cite{SWbook}.
 Algorithm~\ref{alg:homotopy} summarizes homotopy continuation from a known set
 of solutions for given parameter values to compute a set of solutions for the
 desired parameter values. It assumes that solutions for some starting parameters
 $\mathcal{A}_0$ have already been computed via some offline, \emph{ab initio}
 phase. For our problems of interest, the number of start solutions is precisely
 the algebraic degree of the problem. 
-
-For the 3-point trifocal relative pose problem, $\mathcal R$ is $\mathcal{R} = (\srot_2, \srot_3,
-\stransl_2, \stransl_3)$, which encode the rotation and translations of the second
-and third views with respect to the first camera. The implementation used in our
-experiments employ 14 variabes and 14 equations, so that $\mathcal{R} \in \mathbb{C}^{14}$.
-The parameters $\mathcal{A}$ encode the configuration of three feature point
-correspondences in three views; orientation used from two of the three feature
-points yield a minimal problem.
 
 \begin{algorithm}[h]
   \small
@@ -516,12 +509,22 @@ points yield a minimal problem.
 	\label{alg}
 \end{algorithm}
 
+For the 3-point trifocal relative pose problem, $\mathcal R$ is $\mathcal{R} = (\srot_2, \srot_3,
+\stransl_2, \stransl_3)$, which encode the rotation and translations of the second
+and third views with respect to the first camera. The parameters $\mathcal{A}$ encode the configuration of three feature point
+correspondences in three views, with orientation used from two of the three feature
+to yield a minimal problem. The implementation used in our
+experiments employ 14 variabes and 14 equations and represent the point
+configurations and auxiliary parameters with 56 numbers, so that $\mathcal{R} \in \mathbb{C}^{14}$
+and $\mathcal{A} \in \mathbb C^{56}$. Since this trifocal minimal problem has
+algebraic degree 312, the for loop in Algorithm~\ref{alg:homotopy} runs from 1 to
+312. The linear systems to be solved at each step are all $14 \times 14$.
 
-
+The actual MiNuS solver framework implements Algorithm~\ref{alg:homotopy} in about 100 lines of
+efficient templated C++ code. In order to better understand the memory layout, we describe
+the variables in greater detail, mapping to the names in the C++ code.
 
 % TODO: colocar aqui pseudocodigo do paper do david
-
-
 
 % Includes section into document
 \input{sections/speed}

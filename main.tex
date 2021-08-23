@@ -418,7 +418,7 @@ symbolically eliminate multiple variables down to a single variable.
 
 Recently, fast numerical continuation have superseded Gr\"obner bases for highly
 nonlinear minimal problems. Continuation solvers rely on generic
-linear system solvers and polynomial evaluation, rather than symbolic elimination and eigenvalue
+linear system solver technology and polynomial evaluation, rather than symbolic elimination and eigenvalue
 problems. A solver framework called MiNUS (Minimal Problem Numerical
 Continuation Solver) has recently been able to solve previously untractable
 highly nonlinear problems, involving high degrees of nonlinearity (algebraic degrees)
@@ -446,6 +446,26 @@ This work reviews and discusses computer science techniques for source-code
 optimization of numerical continuation code in multicore CPUs, with emphasis on
 memory layout, cache analysis, straight line program vectorization, surveying
 the most promising possibilities for further optimization. 
+
+\section{Numerical continuation solvers}
+
+Numerical continuation solvers simulate a dynamical system, tracing the motion
+of multiple particles from an initial to a final, target state that yelds the
+solution to the desired problem. The moving particles correspond to the multiple
+complex solutions to a family of polynomial systems interpolating the target
+system to be solved and a database of previously solved systems of the similar
+form constructed using synthetic data. For instance, to discover the position of
+three cameras given correspondence data in three images, the code incrementally
+deforms a set of previsouly constructed configurations of cameras and image data
+until it maches the observed data. This is globally convergent, at least when
+this process is done in complex variables.
+
+
+
+
+% TODO: colocar aqui pseudocodigo do paper do david
+
+
 
 % Includes section into document
 \input{sections/speed}

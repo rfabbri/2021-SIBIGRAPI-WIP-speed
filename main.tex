@@ -283,6 +283,7 @@
 
 \newcommand{\srot}{\mathtt{R}} % rotation in simplified notation
 \newcommand{\stransl}{\mathbf{t}}  % translation vector in simplified notation
+\newcommand{\param}{p}
 
 \begin{document}
 %
@@ -465,15 +466,15 @@ practice.
 
 We focus on the MiNuS framework, which is the state of the art continuation
 framework for minimal problem solvers. We may define a specific system of
-polynomials $F(\mathcal{R};\mathcal{A})$, where $\mathcal R$ is the set of
+polynomials $F(x;\param)$, where $x$ is the set of
 unknowns, and the coefficients of the equations are parametrized by a set of
-data parameters $\mathcal A$.
+data parameters $\param$.
 MiNuS employs a fundamental technique for solving such systems called
 \emph{coefficient-parameter homotopy}~\cite{SWbook}.
 Algorithm~\ref{alg:homotopy} summarizes homotopy continuation from a known set
 of solutions for given parameter values to compute a set of solutions for the
 desired parameter values. It assumes that solutions for some starting parameters
-$\mathcal{A}_0$ have already been computed via some offline, \emph{ab initio}
+$\param_0$ have already been computed via some offline, \emph{ab initio}
 phase. For our problems of interest, the number of start solutions is precisely
 the algebraic degree of the problem. 
 
@@ -484,39 +485,39 @@ the algebraic degree of the problem.
 	\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
 	\DontPrintSemicolon
 	
-	\Input{Polynomial system $F(\mathcal{R};\mathcal{A})$, where 
-    $\mathcal{R}$ are the variables;
-	a set of paramters $\mathcal{A}$ describing the data; Start parameters $\mathcal{A}_0$; 
-	start solutions $\mathcal{R}_0$ where $F(\mathcal{R}_0;\mathcal{A}_0)=0$; Target parameters $\mathcal{A}^*$}
-  \Output{Set of target solutions $\mathcal{R}^*$ where $F(\mathcal{R}^*;\mathcal{A}^*)=0$}
+	\Input{Square polynomial system $F(x;\param)$, where 
+    $x$ are the variables;
+	a set of paramters $\param$ describing the data; Start parameters $\param_0$; 
+	start solutions $x_0$ where $F(x_0;\param_0)=0$; Target parameters $\param^*$}
+  \Output{Set of target solutions $x^*$ where $F(x^*;\param^*)=0$}
 	%\hrulefill\\
 	%\linegoal
 	%\algrule
 	\vspace{1em}
-  Setup homotopy $H(\mathcal{R};s) = F(\mathcal{R};(1-s) \mathcal{A}_0 + s \mathcal{A}^*)$. \\
+  Setup homotopy $H(x;t) = F(x;(1-t) \param_0 + t \param^*)$. \\
   \For{each start solution}{
   $s \longleftarrow \emptyset$\;
-	  \While{$s < 1$}{
-	  Select step size $\Delta s \in (0,1-s]$. \\
-      \textbf{Predict:} Runge-Kutta Step from $s$ to $s+\Delta s$ such that
-      $dH/ds = 0$.\\
-      \textbf{Correct:} Newton step st.\ $H(\mathcal{R};s+\Delta s) = 0$.\\
-      $s \longleftarrow s + \Delta s$
+	  \While{$t < 1$}{
+	  Select step size $\Delta t \in (0,1-t]$. \\
+      \textbf{Predict:} Runge-Kutta Step from $t$ to $t+\Delta t$ such that
+      $dH/dt = 0$.\\
+      \textbf{Correct:} Newton step st.\ $H(x;t+\Delta t) = 0$.\\
+      $t \longleftarrow t + \Delta t$
 	  }
 	}
-	\Return Computed solutions $\mathcal{R}^*$ where $H(\mathcal{R}^*,1) = 0$.
+	\Return Computed solutions $x^*$ where $H(x^*,1) = 0$.
 	\caption{Homotopy continuation solution tracker}
 	\label{alg}
 \end{algorithm}
 
-For the 3-point trifocal relative pose problem, $\mathcal R$ is $\mathcal{R} = (\srot_2, \srot_3,
-\stransl_2, \stransl_3)$, which encode the rotation and translations of the second
-and third views with respect to the first camera. The parameters $\mathcal{A}$ encode the configuration of three feature point
+For the 3-point trifocal relative pose problem, $x = (\srot_2, \srot_3,
+\stransl_2, \stransl_3)$ encodes the rotation and translations of the second
+and third views relative to the first camera. The parameters $\param$ encode the configuration of three feature point
 correspondences in three views, with orientation used from two of the three feature
 to yield a minimal problem. The implementation used in our
 experiments employ 14 variabes and 14 equations and represent the point
-configurations and auxiliary parameters with 56 numbers, so that $\mathcal{R} \in \mathbb{C}^{14}$
-and $\mathcal{A} \in \mathbb C^{56}$. Since this trifocal minimal problem has
+configurations and auxiliary parameters with 56 numbers, so that $x \in \mathbb{C}^{14}$
+and $\param \in \mathbb C^{56}$. Since this trifocal minimal problem has
 algebraic degree 312, the for loop in Algorithm~\ref{alg:homotopy} runs from 1 to
 312. The linear systems to be solved at each step are all $14 \times 14$.
 

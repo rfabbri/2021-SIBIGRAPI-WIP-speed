@@ -400,10 +400,14 @@ measurements. In this paper, we study fine-grained code-level optimizations to a
 generic numerical solver
 approach that scales to highly nonlinear minimal problems. One such problem is the 3D
 reconstruction of feature points and camera pose from three images, using the
-minimal data of three SIFT feature correspondences~\cite{Fabbri:etal:CVPR2020}.
+minimal data of three SIFT feature
+correspondences~\cite{Fabbri:Kimia:etal:CVPR2020}.
 
-Gr\"obner basis solvers are standard for tackling minimal problems of low to
-moderate degrees of nonlinearity~\cite{grobner}. They are implemented in most
+% TODO: cite handcrafted solvers
+Gr\"obner basis solvers are a standard generic techniques for tackling minimal problems of low to
+moderate degrees of nonlinearity~\cite{Cox-UAG-1998,Cox-IVA-2015,Nister:PAMI04}. 
+% TODO: cite astrom and pajdla papers
+They are implemented in most
 cell phones and autonomous cars, solving problems in augmented reality and
 self-localization in the order of tens of microseconds in conventional CPUs.
 %
@@ -415,29 +419,35 @@ self-localization in the order of tens of microseconds in conventional CPUs.
 These techniques, however, have not been able to scale towards larger 
 problems, since more degrees of freedom usually imply high nonlinearity beyond
 the cabapility of these solvers. Problems of algebraic degree 60 and
-beyond~\cite{} are either completely intractable by these techniques, or can
+beyond~\cite{Fabbri:Kimia:etal:CVPR2020} are either completely intractable by these techniques, or can
 only be solved in an unstable fashion. One reason is that they have to
 symbolically eliminate multiple variables down to a single variable.
+% TODO: cite relative pose variant of degree 60
 
-Recently, fast numerical continuation have superseded Gr\"obner bases for highly
+Recently, fast numerical continuation have superseded Gr\"obner bases as a
+generic technique for solving highly
 nonlinear minimal problems. Continuation solvers rely on generic
 linear system solver technology and polynomial evaluation, rather than symbolic elimination and eigenvalue
 problems. A solver framework called MiNUS (Minimal Problem Numerical
 Continuation Solver) has recently been able to solve previously untractable
 highly nonlinear problems, involving high degrees of nonlinearity (algebraic degrees)
-in the order of a few hundreds~\cite{}.  The solution is stable, as the
+in the order of a few hundreds~\cite{Fabbri:Kimia:etal:CVPR2020}.  The solution is stable, as the
 numerical technique allows eliminating variables only to a certain, convenient
 point, after which all equations are treated simultaneously and symmetrically.
 Moreover, the continuation solver has 100 lines of generic C++ code that works
 for any minimal problem. Optimizing this code would positively impact a large
-array of problems~\cite{Tim}, possibly even competing with Grobner basis on
-highly important problems of moderate degrees.
+array of
+problems~\cite{Duff:Kohn:Leykin:Pajdla:PLMP:2019,Duff:Kohn:Leykin:Pajdla:PL1P:Arxiv2020},
+possibly even competing with Grobner basis on highly important problems of
+moderate degrees.
 
 One such highly nonlinear problem is the 3D reconstruction of relative camera
 pose (rotation and translation) given only three (oriented) feature point
 correspondences across three images. Referred to as the Chicago problem, it has degree 312 and was first be
 reliably solved by the generic framework in the order of hundreds of miliseconds
-to 1s, Figure~\ref{fig:trifocal}. If this and similar problems could be
+to 1s.
+%TODO Figure~\ref{fig:trifocal}. 
+If this and similar problems could be
 optimized to run in the order of microseconds, the field of structure from
 motion and multiview 3D reconstruction would arguably be revolutionized by the
 use of such a generic, globally convergent and stable algorithm, potentially
@@ -470,7 +480,7 @@ polynomials $F(x;\param)$, where $x$ is the set of
 unknowns, and the coefficients of the equations are parametrized by a set of
 data parameters $\param$.
 MiNuS employs a fundamental technique for solving such systems called
-\emph{coefficient-parameter homotopy}~\cite{SWbook}.
+\emph{coefficient-parameter homotopy}~\cite{SWbook,BertiniBook}.
 Algorithm~\ref{alg:homotopy} summarizes homotopy continuation from a known set
 of solutions for given parameter values to compute a set of solutions for the
 desired parameter values. It assumes that solutions for some starting parameters
@@ -644,7 +654,8 @@ decomposition, and the corrector step is performed at most $4$ times per solve.
 
 
 \section{Conclusion}
-The techniques are
+We presented work in progress towards fine-graine optimization of numerical
+continuation code, testing on trifocal algorithms.  The techniques are
 useful for similar algorithms such as simulating nonrigid deformation and
 dynamical systems.
 
@@ -678,7 +689,7 @@ dynamical systems.
 % http://www.michaelshell.org/tex/ieeetran/bibtex/
 \bibliographystyle{IEEEtran}
 % argument is your BibTeX string definitions and bibliography database(s)
-\bibliography{refs}
+\bibliography{refs,bib/fabbri-multiview,bib/fabbri-video,bib/fabbri-math-books,bib/pajdla,bib/kimia-multiview}
 %
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references

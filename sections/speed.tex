@@ -551,3 +551,15 @@ We propose the predict and correct linear systems could be
 more efficiently implemented via symbolic matrix inversion. 
 This needs to be carefully implemented for the three point trifocal problem, as
 14x14 size seems to lie on the limit where matrix inversion might or might not be feasible.
+
+\subsubsection{Corrector steps using QR decomposition}
+
+Solving linear systems using QR decomposition is more stable, according to our
+experiments, than LU or standard Gaussian elimination. We have observed that
+more corrector steps significantly speeds up the solver, but increases the
+chance of failed solves due to path crossing when excessive correction is used.
+It might make sense to use more stable or higher precision and stability in the
+corrector step, while using less precision in the predictor step. One approach
+would be to use LU decomposition with single precision for solving predictor
+steps, while using QR decomposition with double precision for the corrector
+steps. 

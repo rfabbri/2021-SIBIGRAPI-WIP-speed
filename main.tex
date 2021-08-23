@@ -278,6 +278,7 @@
 \fi
 
 \usepackage{float}
+\usepackage[ruled,vlined]{algorithm2e}
 
 \begin{document}
 %
@@ -298,22 +299,19 @@
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
-\author{\IEEEauthorblockN{Michael Shell}
-\IEEEauthorblockA{School of Electrical and\\Computer Engineering\\
-Georgia Institute of Technology\\
-Atlanta, Georgia 30332--0250\\
-Email: http://www.michaelshell.org/contact.html}
+\author{\IEEEauthorblockN{Ariel Kovaljski}
+\IEEEauthorblockA{IPRJ\\
+UERJ\\
+Brazil\\
+Email:
+}
 \and
-\IEEEauthorblockN{Homer Simpson}
-\IEEEauthorblockA{Twentieth Century Fox\\
-Springfield, USA\\
-Email: homer@thesimpsons.com}
-\and
-\IEEEauthorblockN{James Kirk\\ and Montgomery Scott}
-\IEEEauthorblockA{Starfleet Academy\\
-San Francisco, California 96678--2391\\
-Telephone: (800) 555--1212\\
-Fax: (888) 555--1212}}
+\IEEEauthorblockN{Ricardo Fabbri}
+\IEEEauthorblockA{IPRJ\\
+UERJ\\
+Email: rfabbri@iprj.uerj.br
+}
+}
 
 % conference papers do not typically use \thanks and this command
 % is locked out in conference mode. If really needed, such as for
@@ -447,7 +445,7 @@ optimization of numerical continuation code in multicore CPUs, with emphasis on
 memory layout, cache analysis, straight line program vectorization, surveying
 the most promising possibilities for further optimization. 
 
-\section{Numerical continuation solvers}
+\section{Numerical continuation core solver}
 
 Numerical continuation solvers simulate a dynamical system, tracing the motion
 of multiple particles from an initial to a final, target state that yelds the
@@ -458,7 +456,57 @@ form constructed using synthetic data. For instance, to discover the position of
 three cameras given correspondence data in three images, the code incrementally
 deforms a set of previsouly constructed configurations of cameras and image data
 until it maches the observed data. This is globally convergent, at least when
-this process is done in complex variables.
+this process is carried out in multiple complex variables, as in current
+practice.
+
+We focus on the MiNuS framework, which is the state of the art continuation
+framework for minimal problem solvers. We may define a specific system of
+polynomials $F(\mathcal{R};\mathcal{A})$, where $\mathcal R$ is the set of
+unknowns which are parametrized by a set of parameters $\mathcal A$.
+MiNuS employs a fundamental technique for solving such systems, fully described
+in~\cite{SWbook}, called \emph{coefficient-parameter homotopy.}
+Algorithm~\ref{alg:homotopy} summarizes homotopy continuation from a known set
+of solutions for given parameter values to compute a set of solutions for the
+desired parameter values. It assumes that solutions for some starting parameters
+$\mathcal{A}_0$ have already been computed via some offline, \emph{ab initio}
+phase. For our problems of interest, the number of start solutions is precisely
+the algebraic degree of the problem. 
+
+For the trifocal problem, $\mathcal R$ is ..
+
+\begin{algorithm}[h]
+  \small
+\label{alg:homotopy}
+	\SetKwInput{Input}{input}\SetKwInOut{Output}{output}
+	\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+	\DontPrintSemicolon
+	
+	\Input{Polynomial system $F(\mathcal{R};\mathcal{A})$, where 
+    $\mathcal{R}$ are the variables
+	parametrized by a set of paramters $\mathcal{A}$ describing the data; Start parameters $\mathcal{A}_0$; 
+	start solutions $\mathcal{R}_0$ where $F(\mathcal{R}_0;\mathcal{A}_0)=0$; Target parameters $\mathcal{A}^*$}
+  \Output{Set of target solutions $\mathcal{R}^*$ where $F(\mathcal{R}^*;\mathcal{A}^*)=0$}
+	%\hrulefill\\
+	%\linegoal
+	%\algrule
+	\vspace{1em}
+  Setup homotopy $H(\mathcal{R};s) = F(\mathcal{R};(1-s) \mathcal{A}_0 + s \mathcal{A}^*)$. \\
+  \For{each start solution}{
+  $s \longleftarrow \emptyset$\;
+	  \While{$s < 1$}{
+	  Select step size $\Delta s \in (0,1-s]$. \\
+      \textbf{Predict:} Runge-Kutta Step from $s$ to $s+\Delta s$ such that
+      $dH/ds = 0$.\\
+      \textbf{Correct:} Newton step st.\ $H(\mathcal{R};s+\Delta s) = 0$.\\
+      $s \longleftarrow s + \Delta s$
+	  }
+	}
+	\Return Computed solutions $\mathcal{R}^*$ where $H(\mathcal{R}^*,1) = 0$.
+	\caption{Homotopy continuation solution tracker}
+	\label{alg}
+\end{algorithm}
+
+
 
 
 
